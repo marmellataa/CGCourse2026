@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <random>
 
 using namespace std;
  
@@ -99,7 +100,6 @@ hit_info  hit_sphere(ray r, sphere s) {
 	// choose smaller root first (closest intersection)
 	float t = (-B - sqrt(delta)) / (2 * A);
 	if( t <= 0 )
- 	if (t <= 0)
 		t = (-B + sqrt(delta)) / (2 * A);
 	// if still non-positive, intersection is behind ray origin
 	if (t <= 0)
@@ -115,57 +115,76 @@ hit_info  hit_sphere(ray r, sphere s) {
 	return hi;
 }
 
+// scene setup: two spheres with colors
+std::vector< sphere > scene;
+p3 Lp;
+
+p3 ray_color(ray r){
+	hit_info best_hi = hit_info(); // best intersection so far
+	p3 col = p3(0, 0, 0); // background color (black)
+	for (int is = 0; is < scene.size(); ++is) {
+		hit_info hi = hit_sphere(r, scene[is]); // test intersection
+		if (hi.t < best_hi.t) { // closer hit found
+			best_hi = hi;
+			p3 p = r.orig + r.dir * hi.t; // hit point
+			p3 L = Lp - p; // vector to light
+			L = L * (1.0 / sqrt(L * L)); // normalize L
+
+			// offset origin slightly to avoid self-intersection (shadow acne)
+			ray shadow_ray = ray(p + L * 0.001, L);
+
+			// check for occlusion: if any object blocks the light, point is in shadow
+			int iss = 0;
+			for (; iss < scene.size(); ++iss)
+				if (hit_sphere(shadow_ray, scene[iss]).hit)
+					break;
+
+			if (iss == scene.size()) { // light visible -> simple Lambertian shading
+				float cosLN = hi.n * L;
+				float al = max(0.f, cosLN); // clamp negative values
+				col = hi.color * al; // scale object color by diffuse term
+			}
+		}
+	}
+	return col;
+}
 int main(int args, char** argv) {
+
+	std::random_device rd;                 // seed
+	std::mt19937 gen(rd());                // Mersenne Twister engine
+	std::uniform_real_distribution<> dist(-0.5, 0.5);
+
 	int sx = 800;
 	int sy = 800;
 	image a(sx, sy); 
 
 	p3 eye = p3(0, 0, 0); // camera position
 
-	// scene setup: two spheres with colors
-	std::vector< sphere > scene;
+
 	scene.push_back(sphere(p3(0, 0, -3),   1.0, p3(255,0,0) ) );
-  	scene.push_back(sphere(p3(0.7, 0.7, -2), 0.2, p3(0, 0, 255)));
+	scene.push_back(sphere(p3(0.6, 0.6, -2.0), 0.2, p3(0, 0, 255)));
 
-	p3 Lp = p3(1, 1, -1); // point light position
+	Lp = p3(1, 1, -1); // point light position
 
+	int n_samples = 10;
 	// iterate over image pixels (simple pinhole camera)
 	for (int i = 0; i < a.w; ++i)
 		for (int j = 0; j < a.h; ++j) {
-			// compute pixel position on image plane in [-1,1] range
-			p3 pixpos(-1 + 2 * (i+0.5) / float(a.w), -1 + 2 * (j+0.5) / float(a.h), -1);
-			ray r = ray(eye, pixpos - eye); // primary ray
+			p3 col_avg = p3(0, 0, 0);
 
-			hit_info best_hi = hit_info(); // best intersection so far
-			p3 col = p3(0, 0, 0); // background color (black)
-			for (int is = 0; is < scene.size(); ++is) {
-				hit_info hi = hit_sphere(r, scene[is]); // test intersection
-				if (hi.t < best_hi.t) { // closer hit found
-					best_hi = hi;
-					p3 p = r.orig + r.dir * hi.t; // hit point
-					p3 L = Lp - p; // vector to light
-					L = L * (1.0 / sqrt(L * L)); // normalize L
+			for (int ir = 0; ir < n_samples; ++ir) {
+				float delta_u = dist(gen);
+				float delta_v = dist(gen);
 
-					float cosLN = hi.n * L;
-					float al = max(0.f, cosLN); // clamp negative values
-					col = hi.color * al; // scale object color by diffuse term
+				float an = i + delta_u;
+				// compute pixel position on image plane in [-1,1] range
+				p3 pixpos(-1 + 2 * (i+delta_u + 0.5) / float(a.w), -1 + 2 * (j+ delta_v + 0.5) / float(a.h), -1);
+				ray r = ray(eye, pixpos - eye); // primary ray
 
-					// offset origin slightly to avoid self-intersection (shadow acne)
-					ray shadow_ray = ray(p + L*0.001, L);
-
-					// check for occlusion: if any object blocks the light, point is in shadow
-					int iss = 0;
-					for (; iss < scene.size(); ++iss)
-						if (hit_sphere(shadow_ray, scene[iss]).hit)
-							break;
-					 
-					if (iss != scene.size())  // In shadow --> make
-						col = p3(0,0,0);
-
- 					
-				}
+				col_avg = col_avg + ray_color(r);
 			}
-			a.set_pixel(i, j, col.x, col.y, col.z); // write pixel
+			col_avg = col_avg * (1.0 / n_samples);
+			a.set_pixel(i, j, col_avg.x, col_avg.y, col_avg.z); // write pixel
 		}
 
 	a.save("rendering.ppm"); // save to disk
