@@ -3,8 +3,6 @@
 #include <iostream>
 #include "../common/debugging.h"
 
-
-
 int main(int argc, char** argv) {
 
 	GLFWwindow* window;
@@ -26,7 +24,7 @@ int main(int argc, char** argv) {
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(512, 512, "my_code_02_my_first_triangle", NULL, NULL);
+    window = glfwCreateWindow(512, 512, "code_02_my_first_triangle", NULL, NULL);
 
 
     if (!window)
@@ -38,7 +36,6 @@ int main(int argc, char** argv) {
     /* Make the window's context current */
     glfwMakeContextCurrent(window); 
 
-
     // Load GL symbols *after* the context is current
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::fprintf(stderr, "Failed to initialize GLAD\n");
@@ -46,7 +43,6 @@ int main(int argc, char** argv) {
         glfwTerminate();
         return EXIT_FAILURE;
     }
-
 
     /* query for the hardware and software specs and print the result on the console*/
     printout_opengl_glsl_info();
