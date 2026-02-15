@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\code_00_raytracer\my_main_rt.cpp">
+    <ClCompile Include="..\src\code_02_my_first_triangle\my_main_02.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\glad\src\glad.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>

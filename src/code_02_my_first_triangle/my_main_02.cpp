@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(512, 512, "my_code_02_my_first_triangle", NULL, NULL);
+    window = glfwCreateWindow(512, 512, "code_02_my_first_triangle", NULL, NULL);
 
 
     if (!window)
@@ -53,12 +53,14 @@ int main(int argc, char** argv) {
 
     ///* create render data in RAM */
     GLuint positionAttribIndex = 0;
-    float positions[] = { 0.0, 0.0,  // 1st vertex
-                          0.5, 0.0,  // 2nd vertex
-                          0.5, 0.5,  // 3rd vertex  
-                          0.0, 0.5   // 4th vertex
-    };
+    GLuint colorAttribIndex = 1;
 
+    float vertex_data[] = {
+        0.0, 0.0, 1.0, 0.0, 0.0, // 1st vertex: position (x,y) and color (r,g,b)
+        0.5, 0.0, 0.0, 1.0, 0.0, // 2nd vertex: position (x,y) and color (r,g,b)
+        0.5, 0.5, 0.0, 0.0, 1.0, // 3rd vertex: position (x,y) and color (r,g,b)
+        0.0, 0.5, 1.0, 1.0, 1.0 // 4th vertex: position (x,y) and color (r,g,b)
+    };
 
     ///* create  a vertex array object */
     GLuint va;
@@ -66,36 +68,20 @@ int main(int argc, char** argv) {
     glBindVertexArray(va);
 
     ///* create a buffer for the render data in video RAM */
-    GLuint positionsBuffer;
-    glGenBuffers(1, &positionsBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
+    GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer); 
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
     ///* declare what data in RAM are filling the bufferin video RAM */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(positionAttribIndex);
     ///* specify the data format */
-    glVertexAttribPointer(positionAttribIndex, 2, GL_FLOAT, false, 0, 0);
-
-    ///* create render data in RAM */
-    GLuint colorAttribIndex = 1;
-    float colors[] = {  1.0, 0.0, 0.0,    // 1st vertex's color
-                        0.0, 1.0, 0.0,   // 2nd vertex's color
-                        0.0, 0.0, 1.0,
-                        1.0, 1.0, 1.0
-                    };
-
-    ///* create a buffer for the render data in video RAM */
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-
-    ///* declare what data in RAM are filling the bufferin video RAM */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, colors, GL_STATIC_DRAW);
+    glVertexAttribPointer(positionAttribIndex, 2, GL_FLOAT, false, 5 * sizeof(float), 0);
 
     glEnableVertexAttribArray(colorAttribIndex);
     ///* specify the data format */
-    glVertexAttribPointer(colorAttribIndex, 3, GL_FLOAT, false, 0, 0);
+    glVertexAttribPointer(colorAttribIndex, 3, GL_FLOAT, false, 5 * sizeof(float), (void*)(2 * sizeof(float)));
 
     GLuint indices[] = { 0,1,2,0,2,3 };
     GLuint indexBuffer;
