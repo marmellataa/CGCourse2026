@@ -37,11 +37,18 @@ struct shader {
 
 
 	int operator[](std::string name) {
-		if (uni.find(name) == uni.end()) {
-			std::cout << "No location for uniform variable " << name << std::endl;
-			exit(0);
-		}
-		return uni[name];
+      auto it = uni.find(name);
+		if (it != uni.end())
+			return it->second;
+
+		// try to query the uniform location from the GL program if not already present
+		int loc = glGetUniformLocation(program, name.c_str());
+		if (loc == -1) {
+			std::cerr << "Warning: uniform '" << name << "' not found in shader program." << std::endl;
+		} 
+		// store the location (may be -1) to avoid repeated lookups
+		uni[name] = loc;
+		return loc;
 	} 
 
 	/* create a program shader */

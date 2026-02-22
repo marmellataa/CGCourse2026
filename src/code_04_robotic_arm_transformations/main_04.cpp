@@ -7,7 +7,7 @@
 #include "../common/matrix_stack.h"
 #include "../common/shaders.h"
 
-float alpha_S, alpha_E,alpha_W;
+float alpha_S, alpha_E, alpha_W;
 
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -67,10 +67,10 @@ int main(int argc, char** argv) {
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-  
+
     glfwSetKeyCallback(window, keyboard_callback);
 
-   // Load GL symbols *after* the context is current
+    // Load GL symbols *after* the context is current
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::fprintf(stderr, "Failed to initialize GLAD\n");
         glfwDestroyWindow(window);
@@ -86,11 +86,13 @@ int main(int argc, char** argv) {
     renderable quad, frame;
     frame = shape_maker::frame();
     quad = shape_maker::quad();
-    
+
 
     shader s;
     s.bind_attribute("aPosition", 0);
-    s.create_program("shaders/basic.vert", "shaders/basic.frag");
+    // Shader files are located in the source tree; when running from the
+    // VS_CG_PROJECT working directory the correct relative path is ../src/...
+    s.create_program("../src/code_04_robotic_arm_transformations/shaders/basic.vert", "../src/code_04_robotic_arm_transformations/shaders/basic.frag");
     glUseProgram(s.program);
 
     /* cal glGetError and print out the result in a more verbose style
@@ -99,22 +101,22 @@ int main(int argc, char** argv) {
     */
     check_gl_errors(__LINE__, __FILE__);
 
-    glm::mat4 glob = glm::scale(glm::vec3(0.01, 0.01, 1));
+    glm::mat4 glob = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 1.0f));
 
-    glm::mat4 s_s = glm::scale(glm::vec3(10, 10, 1));
-    glm::mat4 s_a = glm::scale(glm::vec3(15, 5, 1));
-    glm::mat4 t_a = glm::translate(glm::vec3(25, 0, 0));
+    glm::mat4 s_s = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
+    glm::mat4 s_a = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f, 5.0f, 1.0f));
+    glm::mat4 t_a = glm::translate(glm::mat4(1.0f), glm::vec3(25.0f, 0.0f, 0.0f));
 
-    glm::mat4 s_e = glm::scale(glm::vec3(8, 8, 1));
-    glm::mat4 s_f = glm::scale(glm::vec3(12, 4, 1));
-    glm::mat4 t_f = glm::translate(glm::vec3(20, 0, 0));
+    glm::mat4 s_e = glm::scale(glm::mat4(1.0f), glm::vec3(8.0f, 8.0f, 1.0f));
+    glm::mat4 s_f = glm::scale(glm::mat4(1.0f), glm::vec3(12.0f, 4.0f, 1.0f));
+    glm::mat4 t_f = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, 0.0f, 0.0f));
 
-    glm::mat4 s_w = glm::scale(glm::vec3(6, 6, 1));
+    glm::mat4 s_w = glm::scale(glm::mat4(1.0f), glm::vec3(6.0f, 6.0f, 1.0f));
 
-    glm::mat4 W = glm::translate(glm::vec3(30, 0, 0));
+    glm::mat4 W = glm::translate(glm::mat4(1.0f), glm::vec3(30.0f, 0.0f, 0.0f));
 
-    glm::mat4 E = glm::translate(glm::vec3(40, 0, 0));
-    alpha_S,alpha_E ,alpha_W= 0.0;
+    glm::mat4 E = glm::translate(glm::mat4(1.0f), glm::vec3(40.0f, 0.0f, 0.0f));
+    alpha_S = alpha_E = alpha_W = 0.0f;
 
     matrix_stack stack;
 
@@ -123,17 +125,17 @@ int main(int argc, char** argv) {
     glDisable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window))
     {
-        glm::mat4 r_S = glm::rotate(alpha_S, glm::vec3(0, 0, 1));
-        glm::mat4 r_E = glm::rotate(alpha_E, glm::vec3(0, 0, 1));
-        glm::mat4 r_W = glm::rotate(alpha_W, glm::vec3(0, 0, 1));
+        glm::mat4 r_S = glm::rotate(glm::mat4(1.0f), alpha_S, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 r_E = glm::rotate(glm::mat4(1.0f), alpha_E, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 r_W = glm::rotate(glm::mat4(1.0f), alpha_W, glm::vec3(0.0f, 0.0f, 1.0f));
 
         /* Render here */
-        glClearColor(0.2, 0.2, 0.2, 1);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
+
         stack.push();
 
-        stack.mult(glm::translate(glm::vec3(0, -30, 0)));
+        stack.mult(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -30.0f, 0.0f)));
 
         stack.mult(r_S);
 
@@ -151,7 +153,7 @@ int main(int argc, char** argv) {
 
         // Arm
         stack.push();
-        stack.mult(t_a * s_a);       
+        stack.mult(t_a * s_a);
         glUniformMatrix4fv(s["uM"], 1, GL_FALSE, glm::value_ptr(stack.m()));
         stack.pop();
         glUniform3f(s["uCol"], 0.2, 0.3, 0.6);
@@ -173,7 +175,7 @@ int main(int argc, char** argv) {
         quad.bind();
         glDrawElements(quad().mode, quad().count, quad().itype, NULL);
 
-        
+
         stack.push();
 
         // forearm

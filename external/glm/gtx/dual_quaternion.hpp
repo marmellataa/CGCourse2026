@@ -16,6 +16,7 @@
 #pragma once
 
 // Dependency:
+#define GLM_ENABLE_EXPERIMENTAL
 #include "../glm.hpp"
 #include "../gtc/constants.hpp"
 #include "../gtc/quaternion.hpp"
@@ -47,9 +48,9 @@ namespace glm
 
 		typedef length_t length_type;
 		/// Return the count of components of a dual quaternion
-		GLM_FUNC_DECL static constexpr length_type length(){return 2;}
+		GLM_FUNC_DECL static constexpr length_type length() { return 2; }
 
-		GLM_FUNC_DECL GLM_CONSTEXPR part_type & operator[](length_type i) noexcept;
+		GLM_FUNC_DECL GLM_CONSTEXPR part_type& operator[](length_type i) noexcept;
 		GLM_FUNC_DECL GLM_CONSTEXPR part_type const& operator[](length_type i) const noexcept;
 
 		// -- Implicit basic constructors --
@@ -75,14 +76,14 @@ namespace glm
 
 		// -- Unary arithmetic operators --
 
-		GLM_FUNC_DISCARD_DECL tdualquat<T, Q> & operator=(tdualquat<T, Q> const& m) = default;
+		GLM_FUNC_DISCARD_DECL tdualquat<T, Q>& operator=(tdualquat<T, Q> const& m) = default;
 
 		template<typename U>
-		GLM_FUNC_DISCARD_DECL tdualquat<T, Q> & operator=(tdualquat<U, Q> const& m);
+		GLM_FUNC_DISCARD_DECL tdualquat<T, Q>& operator=(tdualquat<U, Q> const& m);
 		template<typename U>
-		GLM_FUNC_DISCARD_DECL tdualquat<T, Q> & operator*=(U s);
+		GLM_FUNC_DISCARD_DECL tdualquat<T, Q>& operator*=(U s);
 		template<typename U>
-		GLM_FUNC_DISCARD_DECL tdualquat<T, Q> & operator/=(U s);
+		GLM_FUNC_DISCARD_DECL tdualquat<T, Q>& operator/=(U s);
 	};
 
 	// -- Unary bit operators --

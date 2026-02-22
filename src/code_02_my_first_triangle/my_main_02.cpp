@@ -95,7 +95,6 @@ int main(int argc, char** argv) {
     // macOS requires this for 3.2+ contexts
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(512, 512, "my_code_02_my_first_triangle", NULL, NULL);
 

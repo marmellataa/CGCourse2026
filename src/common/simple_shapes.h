@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include "renderable.h"
-#include <glm/ext.hpp>  
-#include <glm/gtx/string_cast.hpp>
+#include <../../external/glm/ext.hpp>  
+#include <../../glm/gtx/string_cast.hpp>
 
 class shape {
 public:
